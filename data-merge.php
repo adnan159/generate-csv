@@ -120,7 +120,6 @@ final class Ascode_Addressbook {
             }
             $review_data[] = $comments + $stractured_data;
         }
-        
 
         foreach($review_data as $key=>$values) {
             echo '<pre>';
