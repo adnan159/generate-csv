@@ -16,6 +16,8 @@
  * Domain Path:       /languages
  */
 
+use Elementor\Core\Utils\Str;
+
 if ( ! defined( 'ABSPATH' ) ) {
     die;
 }
@@ -26,6 +28,7 @@ final class Ascode_Addressbook {
 
     private function __construct() {
         $this -> define_constants();
+        $this -> make_csv_file();    
         add_action( 'plugins_loaded', [ $this, 'init_plugin' ] );
     }
 
@@ -34,11 +37,47 @@ final class Ascode_Addressbook {
      */
     public function define_constants() {
         define( 'ASCODE_VERSION', self::version );
-
     }
 
     public function init_plugin() {
         add_action( 'admin_menu', [ $this, 'admin_menu' ] );
+    }
+
+    function make_csv_file() {
+        global $wpdb;
+
+        $comment_data = $wpdb->get_results("SELECT
+                    ID,
+                    post_title,
+                    comment_content,
+                    comment_author,
+                    comment_author_email,
+                    comment_date,
+                    comment_ID
+                FROM
+                    {$wpdb->prefix}comments AS comments
+                INNER JOIN {$wpdb->prefix}posts AS post 
+                    ON post.ID = comments.comment_post_ID");
+
+        $comment_data = json_decode(json_encode($comment_data), true);
+
+        $comment_meta = [];
+        foreach( $comment_data as $key => $comments ) {
+            $comment_meta = get_comment_meta($comments['comment_ID']);
+
+            $stractured_data = [];
+            foreach ($comment_meta as $key => $value) { 
+                $stractured_data[$key] = $value[0];
+            }
+
+            $review_data[] = $comments + $stractured_data;
+        }
+       
+        $file_csv = fopen('reviews.csv', 'w');
+        foreach( $review_data as $key => $value ) {
+            fputcsv($file_csv, $value );
+        }
+        fclose($file_csv);
     }
 
     public function admin_menu(){
@@ -71,32 +110,21 @@ final class Ascode_Addressbook {
                     ON post.ID = comments.comment_post_ID");
 
         $comment_data = json_decode(json_encode($comment_data), true);
-        
-        $review_meta = [];
-        $meta_value = [];
+
+        $comment_meta = [];
         foreach( $comment_data as $key => $comments ) {
             $comment_meta = get_comment_meta($comments['comment_ID']);
-            echo '<pre>';
-            $review_meta[] = $comments + $comment_meta;
-            // $review_meta[] = $comment_meta;
-            // print_r($comments);
-            echo '</pre>';
+            $stractured_data = [];
+            foreach ($comment_meta as $key => $value) { 
+                $stractured_data[$key] = $value[0];
+            }
+            $review_data[] = $comments + $stractured_data;
         }
         
-        foreach($review_meta as $key=>$meta) {
-            $meta_value[$key] = $meta;
-        }
 
-        foreach($meta_value as $key=>$value) {
+        foreach($review_data as $key=>$values) {
             echo '<pre>';
-            print_r($value);
-            echo '</pre>';
-        }
-
-        
-        foreach( $review_meta as $row ) {
-            echo '<pre>';
-            var_dump($row);
+            print_r($values);
             echo '</pre>';
         }
     }
