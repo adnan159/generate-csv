@@ -16,7 +16,6 @@
  * Domain Path:       /languages
  */
 
-use Elementor\Core\Utils\Str;
 
 if ( ! defined( 'ABSPATH' ) ) {
     die;
@@ -57,7 +56,8 @@ final class Ascode_Addressbook {
                 FROM
                     {$wpdb->prefix}comments AS comments
                 INNER JOIN {$wpdb->prefix}posts AS post 
-                    ON post.ID = comments.comment_post_ID");
+                    ON post.ID = comments.comment_post_ID 
+                    WHERE comments.comment_type = 'review' || comments.comment_type = 'comment'");
 
         $comment_data = json_decode(json_encode($comment_data), true);
 
@@ -72,8 +72,18 @@ final class Ascode_Addressbook {
 
             $review_data[] = $comments + $stractured_data;
         }
+
+        $heading = [];
+        foreach($review_data as $key=>$values) {
+            foreach($values as $key=>$value){
+                if( ! in_array($key,$heading)) {
+                    $heading[] = $key;
+                }
+            }
+        }
        
         $file_csv = fopen('reviews.csv', 'w');
+        fputcsv($file_csv, $heading );
         foreach( $review_data as $key => $value ) {
             fputcsv($file_csv, $value );
         }
@@ -122,9 +132,11 @@ final class Ascode_Addressbook {
         }
 
         foreach($review_data as $key=>$values) {
-            echo '<pre>';
-            print_r($values);
-            echo '</pre>';
+            foreach($values as $key=>$value){
+                echo '<pre>';
+                print_r($key);
+                echo '</pre>';
+            }
         }
     }
 
