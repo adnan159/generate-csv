@@ -70,6 +70,9 @@ final class Ascode_Addressbook {
                 $stractured_data[$key] = $value[0];
             }
 
+            $allowed = array( 'rating', 'reviewx_title' );
+            $stractured_data = array_intersect_key( $stractured_data, array_flip( $allowed ) );
+
             $review_data[] = $comments + $stractured_data;
         }
 
@@ -81,7 +84,8 @@ final class Ascode_Addressbook {
                 }
             }
         }
-       
+        
+        $file_name = '\export\reviews.csv';
         $file_csv = fopen('reviews.csv', 'w');
         fputcsv($file_csv, $heading );
         foreach( $review_data as $key => $value ) {
@@ -128,6 +132,8 @@ final class Ascode_Addressbook {
             foreach ($comment_meta as $key => $value) { 
                 $stractured_data[$key] = $value[0];
             }
+            $allowed = array( 'rating', 'reviewx_title' );
+            $stractured_data = array_intersect_key( $stractured_data, array_flip( $allowed ) );
             $review_data[] = $comments + $stractured_data;
         }
 
@@ -138,6 +144,8 @@ final class Ascode_Addressbook {
                 echo '</pre>';
             }
         }
+
+        echo '<p><a href="reviews.csv">Download TEXT file</a></p>';
     }
 
     /**
