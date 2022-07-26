@@ -86,7 +86,7 @@ final class Ascode_Addressbook {
         }
         
         $file_name = '\export\reviews.csv';
-        $file_csv = fopen('reviews.csv', 'w');
+        $file_csv = fopen('reviews.csv', 'w+');
         fputcsv($file_csv, $heading );
         foreach( $review_data as $key => $value ) {
             fputcsv($file_csv, $value );
