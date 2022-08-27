@@ -108,6 +108,10 @@ final class Ascode_Addressbook {
     }
 
     public function data_fetch() {
+        require_once 'export-page.php';
+    }
+
+    public function __data_fetch() {
         global $wpdb;
 
         $comment_data = $wpdb->get_results("SELECT
